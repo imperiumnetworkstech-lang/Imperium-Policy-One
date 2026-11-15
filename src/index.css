@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Imperium Networks brand: white surfaces, pink -> violet -> periwinkle gradient,
+   purple #7445d1 actions, Outfit headings and DM Sans body text. */
+@theme inline {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Outfit", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-mute: var(--mute);
+  --color-faint: var(--faint);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-pink: #ff4fd8;
+  --color-violet: #8b2cf5;
+  --color-periwinkle: #7f8cf8;
+  --shadow-card: 0 1px 2px rgb(116 69 209 / 0.05), 0 10px 30px -12px rgb(116 69 209 / 0.16);
+  --shadow-pop: 0 28px 70px -18px rgb(58 20 120 / 0.35);
+}
+
+:root {
+  --bg: #faf8ff;
+  --surface: #ffffff;
+  --subtle: #f8f5ff;
+  --line: #ece6f7;
+  --ink: #0b0b12;
+  --mute: #4a4a5a;
+  --faint: #8a8a9a;
+  --brand: #7445d1;
+  --brand-strong: #5b32b4;
+  --brand-soft: #f1eaff;
+  color-scheme: light;
+}
+.dark {
+  --bg: #0b0a12;
+  --surface: #13111d;
+  --subtle: #1b1828;
+  --line: #2a2540;
+  --ink: #f5f3fb;
+  --mute: #b4aecb;
+  --faint: #7c7696;
+  --brand: #a58bff;
+  --brand-strong: #c3b3ff;
+  --brand-soft: #2a2050;
+  color-scheme: dark;
+}
+
+html, body, #root { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.01em; }
+button, a, select, summary { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* slim scrollbars */
+* { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes sheet { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes pop { from { opacity: 0; transform: scale(0.97) translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-12px) rotate(4deg); } }
+.anim-rise { animation: rise 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.anim-fade { animation: fade 0.2s ease both; }
+.anim-modal { animation: sheet 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.anim-float { animation: float 7s ease-in-out infinite; }
+@media (min-width: 640px) { .anim-modal { animation: pop 0.2s ease both; } }
+@media (prefers-reduced-motion: reduce) { .anim-rise, .anim-fade, .anim-modal, .anim-float { animation: none; } }
+
+/* Brand gradients, as used on imperiumnetworks.in */
+.bg-grad { background-image: linear-gradient(135deg, #ff4fd8, #8b2cf5 50%, #7f8cf8); }
+.bg-grad-deep { background-image: linear-gradient(135deg, #c2188f, #7445d1 50%, #4f5bd5); }
+.bg-grad-soft { background-image: linear-gradient(135deg, #ffe3f7, #efe3ff 50%, #e3e7ff); }
+.dark .bg-grad-soft { background-image: linear-gradient(135deg, #2a1330, #1f1640 50%, #161a3a); }
+button.bg-grad:hover, a.bg-grad:hover { filter: brightness(1.06) saturate(1.05); }
+.text-grad {
+  background-image: linear-gradient(135deg, #ff4fd8, #8b2cf5 55%, #7f8cf8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Soft blurred brand blobs behind hero areas */
+.auth-art { background: linear-gradient(135deg, #fff3fb, #f4edff 50%, #eef0ff); }
+.dark .auth-art { background: linear-gradient(135deg, #1a0f22, #150f2b 50%, #0f1228); }
+.blob { position: absolute; border-radius: 9999px; filter: blur(48px); opacity: 0.55; pointer-events: none; }
+
+.recharts-wrapper:focus, .recharts-surface:focus, .recharts-sector:focus { outline: none; }
