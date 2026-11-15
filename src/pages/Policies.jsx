@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Plus, Download, FileText, ChevronRight } from 'lucide-react';
+import { Plus, Download, FileText, ChevronRight, FileSpreadsheet } from 'lucide-react';
+import ImportBook from '../components/ImportBook';
 import { useData } from '../context/DataContext';
 import { usePolicyForm } from '../components/PolicyForm';
 import { PolicyDetail, StatusBadge, dueLabel } from '../components/policyShared';
@@ -17,6 +18,7 @@ export default function Policies() {
   const [cat, setCat] = useState('all');
   const [status, setStatus] = useState('all');
   const [sort, setSort] = useState('recent');
+  const [importing, setImporting] = useState(false);
   const openId = params.get('id');
   const setOpenId = (id) => setParams(id ? { id } : {}, { replace: true });
 
@@ -57,6 +59,7 @@ export default function Policies() {
   return (
     <>
       <PageHeader title="Policies" sub={`${rows.length} of ${policies.length} policies · ${inr(totals.premium)} premium · ${inr(totals.comm)} commission`}>
+        <Button variant="secondary" icon={FileSpreadsheet} onClick={() => setImporting(true)}>Import</Button>
         <Button variant="secondary" icon={Download} onClick={exportCsv} disabled={!rows.length}>Export</Button>
         <Button icon={Plus} onClick={() => openForm()}>New policy</Button>
       </PageHeader>
@@ -161,6 +164,7 @@ export default function Policies() {
       </Card>
 
       {openId && <PolicyDetail policyId={openId} onClose={() => setOpenId(null)} />}
+      {importing && <ImportBook onClose={() => setImporting(false)} />}
     </>
   );
 }

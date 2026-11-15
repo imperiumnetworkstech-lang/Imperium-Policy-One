@@ -94,9 +94,8 @@ button.bg-grad:hover, a.bg-grad:hover { filter: brightness(1.06) saturate(1.05);
   color: transparent;
 }
 
-/* Soft blurred brand blobs behind hero areas */
-.auth-art { background: linear-gradient(135deg, #fff3fb, #f4edff 50%, #eef0ff); }
-.dark .auth-art { background: linear-gradient(135deg, #1a0f22, #150f2b 50%, #0f1228); }
-.blob { position: absolute; border-radius: 9999px; filter: blur(48px); opacity: 0.55; pointer-events: none; }
+/* Login brand panel: a clean, flat wash of the brand colours (no blur or see-through layers) */
+.auth-art { background: linear-gradient(160deg, #fdf2fb 0%, #f5efff 55%, #eef0ff 100%); }
+.dark .auth-art { background: linear-gradient(160deg, #15111f 0%, #120f1c 60%, #100f1a 100%); }
 
 .recharts-wrapper:focus, .recharts-surface:focus, .recharts-sector:focus { outline: none; }

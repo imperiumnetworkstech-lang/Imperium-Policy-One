@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Save, Download, LogOut, CloudCheck, Sun, Moon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Save, Download, LogOut, CloudCheck, CloudOff, Sun, Moon, FileSpreadsheet } from 'lucide-react';
+import ImportBook from '../components/ImportBook';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { Avatar, Button, Card, CardHead, Field, Input, useTheme, useToast } from '../components/ui';
-import { APP_NAME } from '../lib/constants';
-import { todayISO } from '../lib/utils';
 
 export default function SettingsPage() {
   const { user, logOut } = useAuth();
-  const { profile, saveProfile, policies, clients, leads, claims } = useData();
+  const { profile, saveProfile, policies, clients, leads, claims, syncing, offline } = useData();
   const { dark, toggle } = useTheme();
   const toast = useToast();
   const [f, setF] = useState({ name: '', agency: '', phone: '', licence: '', monthlyTarget: '' });
   const [busy, setBusy] = useState('');
+  const [importing, setImporting] = useState(false);
   const on = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   useEffect(() => {
@@ -24,14 +25,11 @@ export default function SettingsPage() {
     try { await fn(); toast(done); } catch (e) { toast(e.message || 'Something went wrong', 'error'); } finally { setBusy(''); }
   };
 
-  const backup = () => {
-    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), profile, clients, policies, leads, claims }, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${APP_NAME.toLowerCase()}-backup-${todayISO()}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
+  const downloadPdf = () =>
+    run('pdf', async () => {
+      const { downloadBookPdf } = await import('../lib/pdfReport');
+      await downloadBookPdf({ profile, clients, policies, leads, claims });
+    }, 'PDF report downloaded');
 
   return (
     <>
@@ -51,11 +49,11 @@ export default function SettingsPage() {
             <Field label="Agency name"><Input value={f.agency} onChange={on('agency')} /></Field>
             <Field label="Mobile"><Input type="tel" inputMode="numeric" value={f.phone} onChange={on('phone')} /></Field>
             <Field label="IRDAI licence / POSP code"><Input value={f.licence} onChange={on('licence')} /></Field>
-            <Field label="Monthly premium target" hint="Shown as a progress bar on the dashboard">
-              <Input type="number" inputMode="decimal" value={f.monthlyTarget} onChange={on('monthlyTarget')} />
-            </Field>
+            <div className="flex items-end text-xs text-mute">
+              <p>Monthly and yearly targets are set on the <Link to="/goals" className="font-bold text-brand-strong hover:underline">Goals</Link> page.</p>
+            </div>
             <div className="flex items-end">
-              <Button icon={Save} loading={busy === 'profile'} onClick={() => run('profile', () => saveProfile({ ...f, monthlyTarget: Number(f.monthlyTarget) || 0 }), 'Profile saved')}>Save profile</Button>
+              <Button icon={Save} loading={busy === 'profile'} onClick={() => run('profile', () => saveProfile({ name: f.name, agency: f.agency, phone: f.phone, licence: f.licence }), 'Profile saved')}>Save profile</Button>
             </div>
           </div>
         </Card>
@@ -63,12 +61,16 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <Card className="p-5">
             <div className="flex items-start gap-3">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-500/12 text-emerald-600 dark:text-emerald-300">
-                <CloudCheck className="size-5" />
+              <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${offline ? 'bg-amber-500/15 text-amber-600 dark:text-amber-300' : 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-300'}`}>
+                {offline ? <CloudOff className="size-5" /> : <CloudCheck className="size-5" />}
               </span>
               <div>
-                <p className="text-sm font-bold text-ink">Saved to the cloud</p>
-                <p className="mt-0.5 text-xs text-mute">Your data is stored securely in Firebase and syncs live across your laptop and phone, with offline support.</p>
+                <p className="text-sm font-bold text-ink">{offline ? 'Cloud database not reachable' : syncing ? 'Connecting to the cloud...' : 'Saved to the cloud'}</p>
+                <p className="mt-0.5 text-xs text-mute">
+                  {offline
+                    ? 'Changes are kept on this device and upload automatically once the database responds. If this persists, check that the Firestore database is created in the Firebase console.'
+                    : 'Your data is stored securely in Firebase and syncs live across your laptop and phone, with offline support.'}
+                </p>
               </div>
             </div>
           </Card>
@@ -85,9 +87,11 @@ export default function SettingsPage() {
         <Card className="lg:col-span-2">
           <CardHead title="Your data" sub={`${policies.length} policies · ${clients.length} clients · ${leads.length} leads · ${claims.length} claims`} />
           <div className="flex flex-wrap gap-2 p-5">
-            <Button variant="secondary" icon={Download} onClick={backup}>Download backup (JSON)</Button>
+            <Button variant="secondary" icon={Download} loading={busy === 'pdf'} onClick={downloadPdf}>Download report (PDF)</Button>
+            <Button variant="secondary" icon={FileSpreadsheet} onClick={() => setImporting(true)}>Import from Excel</Button>
           </div>
-          <p className="px-5 pb-5 text-xs text-mute">A full copy of your records. Spreadsheet exports are on the Policies and Reports pages.</p>
+          {importing && <ImportBook onClose={() => setImporting(false)} />}
+          <p className="px-5 pb-5 text-xs text-mute">A branded PDF of all your policies, clients, leads and claims with totals. Spreadsheet exports are on the Policies and Reports pages.</p>
         </Card>
 
         <Card className="flex items-center justify-between p-5">

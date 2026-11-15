@@ -115,9 +115,9 @@ export default function Leads() {
 }
 
 function LeadForm({ lead, onClose }) {
-  const { add, save, del } = useData();
+  const { clients, add, save, del } = useData();
   const toast = useToast();
-  const [f, setF] = useState({ name: '', phone: '', email: '', interest: 'motor', expectedPremium: '', source: '', stage: 'new', followUp: addDays(todayISO(), 1), notes: '', ...lead });
+  const [f, setF] = useState({ name: '', phone: '', email: '', interest: 'motor', expectedPremium: '', source: '', referredBy: '', stage: 'new', followUp: addDays(todayISO(), 1), notes: '', ...lead });
   const [confirm, setConfirm] = useState(false);
   const on = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
@@ -149,6 +149,12 @@ function LeadForm({ lead, onClose }) {
           <Field label="Expected premium"><Input type="number" inputMode="decimal" value={f.expectedPremium} onChange={on('expectedPremium')} /></Field>
           <Field label="Source">
             <Select value={f.source} onChange={on('source')}><option value="">Select</option>{LEAD_SOURCES.map((s) => <option key={s}>{s}</option>)}</Select>
+          </Field>
+          <Field label="Referred by" hint="Credit the client who sent this lead">
+            <Select value={f.referredBy || ''} onChange={(e) => setF({ ...f, referredBy: e.target.value, source: e.target.value && !f.source ? 'Referral' : f.source })}>
+              <option value="">Nobody</option>
+              {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </Select>
           </Field>
           <Field label="Stage">
             <Select value={f.stage} onChange={on('stage')}>{LEAD_STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}</Select>

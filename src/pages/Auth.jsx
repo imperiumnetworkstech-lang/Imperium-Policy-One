@@ -44,14 +44,12 @@ export default function AuthPage({ mode }) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
       {/* Brand panel, in the style of imperiumnetworks.in */}
-      <div className="auth-art relative hidden overflow-hidden lg:block">
-        <span className="blob -left-24 -top-24 size-96 bg-pink-300" />
-        <span className="blob -bottom-32 right-0 size-[28rem] bg-violet-300" />
-        <span className="blob right-1/3 top-1/3 size-72 bg-indigo-200" />
+      <div className="auth-art relative hidden overflow-hidden border-r border-line lg:block">
         <div className="relative flex h-full min-h-dvh flex-col justify-between gap-10 overflow-y-auto p-12">
-          <img src="/brand/logo-full.png" alt="Imperium PolicyOne - The Complete Insurance CRM for Growth" className="h-24 w-auto self-start xl:h-28 dark:rounded-2xl dark:bg-white dark:p-3" />
+          <img src="/brand/logo-full.png" alt="Imperium PolicyOne - The Complete Insurance CRM for Growth" className="h-24 w-auto self-start xl:h-28 dark:hidden" />
+          <img src="/brand/logo-full-dark.png" alt="Imperium PolicyOne - The Complete Insurance CRM for Growth" className="hidden h-24 w-auto self-start xl:h-28 dark:block" />
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface/80 px-3 py-1.5 text-xs font-semibold text-brand-strong shadow-sm backdrop-blur">
+            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-brand-strong">
               <Sparkles className="size-3.5" /> Built for Indian insurance agents and POSPs
             </span>
             <h1 className="mt-5 max-w-lg text-5xl font-bold leading-[1.05] text-ink xl:text-6xl">
@@ -62,7 +60,7 @@ export default function AuthPage({ mode }) {
             </p>
             <div className="mt-9 grid max-w-lg gap-3">
               {POINTS.map((p) => (
-                <div key={p.title} className="flex gap-4 rounded-2xl border border-white/60 bg-surface/70 p-4 shadow-card backdrop-blur dark:border-line">
+                <div key={p.title} className="flex gap-4 rounded-2xl border border-line bg-surface p-4">
                   <span className="bg-grad grid size-10 shrink-0 place-items-center rounded-xl text-white shadow-md shadow-fuchsia-500/25">
                     <p.icon className="size-5" />
                   </span>
@@ -80,10 +78,9 @@ export default function AuthPage({ mode }) {
 
       {/* Form */}
       <div className="relative flex items-center justify-center overflow-hidden bg-surface px-5 py-10">
-        <span className="blob -right-24 -top-20 size-72 bg-pink-200 lg:hidden" />
-        <span className="blob -bottom-24 -left-24 size-72 bg-violet-200 lg:hidden" />
         <div className="anim-rise relative w-full max-w-sm">
-          <img src="/brand/logo-full.png" alt="Imperium PolicyOne" className="mx-auto mb-8 h-24 w-auto lg:hidden dark:rounded-2xl dark:bg-white dark:p-2" />
+          <img src="/brand/logo-full.png" alt="Imperium PolicyOne" className="mx-auto mb-8 h-24 w-auto lg:hidden dark:hidden" />
+          <img src="/brand/logo-full-dark.png" alt="Imperium PolicyOne" className="mx-auto mb-8 hidden h-24 w-auto dark:block lg:dark:hidden" />
           <h2 className="text-3xl font-bold text-ink">{signup ? 'Create your agent account' : 'Welcome back'}</h2>
           <p className="mt-1.5 text-sm text-mute">
             {signup ? `Start managing your book with ${APP_NAME}.` : 'Sign in to your book of business.'}

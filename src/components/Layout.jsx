@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, CalendarClock, Users, Target, LifeBuoy, Lightbulb, ChartColumn, Calculator,
-  Settings, Plus, Sun, Moon, LogOut, Menu, IdCard, Loader2,
+  Settings, Plus, Sun, Moon, LogOut, Menu, IdCard, Loader2, CloudOff, Scale, Trophy, Handshake,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { PolicyFormProvider, usePolicyForm } from './PolicyForm';
-import { Avatar, IconButton, Modal, Spinner, useTheme } from './ui';
+import { Avatar, Button, IconButton, Modal, Spinner, useTheme } from './ui';
 import { APP_NAME } from '../lib/constants';
 import { renewalBuckets } from '../lib/insights';
 import { cx } from '../lib/utils';
@@ -19,7 +19,10 @@ const NAV = [
   { to: '/clients', label: 'Clients', icon: Users },
   { to: '/leads', label: 'Leads', icon: Target },
   { to: '/claims', label: 'Claims', icon: LifeBuoy },
+  { to: '/quotes', label: 'Quotes', icon: Scale },
   { to: '/insights', label: 'Insights', icon: Lightbulb, group: 'Grow' },
+  { to: '/goals', label: 'Goals', icon: Trophy, group: 'Grow' },
+  { to: '/referrals', label: 'Referrals', icon: Handshake, group: 'Grow' },
   { to: '/reports', label: 'Reports', icon: ChartColumn, group: 'Grow' },
   { to: '/calculator', label: 'Calculator', icon: Calculator, group: 'Grow' },
   { to: '/card', label: 'Business card', icon: IdCard, group: 'Grow' },
@@ -49,7 +52,7 @@ export default function Layout() {
 
 function Shell() {
   const { user, logOut } = useAuth();
-  const { loading, syncing, error, profile, policies } = useData();
+  const { loading, syncing, offline, error, profile, policies } = useData();
   const { dark, toggle } = useTheme();
   const openPolicy = usePolicyForm();
   const [more, setMore] = useState(false);
@@ -131,6 +134,11 @@ function Shell() {
             {syncing && !loading && (
               <span className="mr-1 flex items-center gap-1.5 text-[11px] font-semibold text-mute"><Loader2 className="size-3.5 animate-spin text-brand" /> Syncing</span>
             )}
+            {offline && (
+              <span title="The cloud database is not responding. Your changes are kept on this device and upload automatically once it is reachable." className="mr-1 flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                <CloudOff className="size-3.5" /> Not saved to cloud
+              </span>
+            )}
             <IconButton icon={dark ? Sun : Moon} label="Toggle theme" onClick={toggle} />
             <button className="lg:hidden" onClick={() => navigate('/settings')} aria-label="Account"><Avatar name={name} src={profile.photo} className="size-8 text-[10px]" /></button>
           </div>
@@ -141,7 +149,19 @@ function Shell() {
             {error ? (
               <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-5 text-sm text-rose-700 dark:text-rose-300">
                 <p className="font-bold">Could not load your data</p>
-                <p className="mt-1">{error.code === 'permission-denied' ? 'Firestore denied access. Publish the rules from firestore.rules in the Firebase console.' : error.message}</p>
+                {error.code === 'permission-denied' ? (
+                  <>
+                    <p className="mt-1">The cloud database refused access. In the Firebase console, open Firestore Database and check:</p>
+                    <ul className="mt-2 list-disc space-y-1 pl-5">
+                      <li>The database selected at the top is <b>(default)</b>.</li>
+                      <li>The <b>Rules</b> tab shows the rules from <code>firestore.rules</code> and you clicked <b>Publish</b>.</li>
+                      <li>You waited about a minute after publishing, then pressed Try again.</li>
+                    </ul>
+                  </>
+                ) : (
+                  <p className="mt-1">{error.message}</p>
+                )}
+                <Button variant="secondary" size="sm" className="mt-4" onClick={() => window.location.reload()}>Try again</Button>
               </div>
             ) : loading ? <Spinner label="Opening" /> : <Outlet />}
           </div>

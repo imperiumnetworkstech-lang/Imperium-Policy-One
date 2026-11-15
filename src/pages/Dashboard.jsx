@@ -90,7 +90,7 @@ export default function Dashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const first = (profile.name || '').split(' ')[0];
-  const target = num(profile.monthlyTarget);
+  const target = num(profile.goals?.month?.total) || num(profile.monthlyTarget);
   const targetPct = target ? Math.round((m.monthPremium / target) * 100) : 0;
 
   if (!policies.length && !clients.length)
@@ -241,7 +241,7 @@ export default function Dashboard() {
           <Card className="p-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-bold text-ink"><Target className="size-4 text-brand" /> Monthly target</div>
-              <Link to="/settings" className="text-xs font-bold text-brand-strong hover:underline">{target ? 'Edit' : 'Set'}</Link>
+              <Link to="/goals" className="text-xs font-bold text-brand-strong hover:underline">{target ? 'All goals' : 'Set'}</Link>
             </div>
             <p className="tnum mt-3 text-2xl font-bold text-ink">{inrShort(m.monthPremium)} <span className="text-sm font-semibold text-mute">/ {target ? inrShort(target) : 'no target'}</span></p>
             <Progress value={targetPct} className="mt-3" tone={targetPct >= 100 ? 'bg-emerald-500' : 'bg-brand'} />

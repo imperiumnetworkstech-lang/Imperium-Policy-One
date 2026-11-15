@@ -15,7 +15,8 @@ function SetupNeeded() {
   return (
     <div className="grid min-h-dvh place-items-center bg-bg px-5">
       <div className="w-full max-w-md rounded-3xl border border-line bg-surface p-7 shadow-card">
-        <img src="/brand/logo-full.png" alt="Imperium PolicyOne" className="mx-auto h-24 w-auto" />
+        <img src="/brand/logo-full.png" alt="Imperium PolicyOne" className="mx-auto h-24 w-auto dark:hidden" />
+        <img src="/brand/logo-full-dark.png" alt="Imperium PolicyOne" className="mx-auto hidden h-24 w-auto dark:block" />
         <h1 className="font-display mt-6 text-xl font-bold text-ink">Firebase is not configured</h1>
         <p className="mt-2 text-sm text-mute">
           Add these values to the <code>.env</code> file (or to your host's environment variables) and restart:

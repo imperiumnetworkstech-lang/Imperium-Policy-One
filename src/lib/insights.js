@@ -1,6 +1,7 @@
 // Turns the agent's book into a list of concrete, actionable gaps.
 import { isLive, isRenewable, policyStatus, totalPremium, policyTitle } from './constants';
 import { daysUntil, daysToAnnual, num } from './utils';
+import { householdSummary } from './family';
 
 export function buildInsights({ policies, clients, leads }) {
   const out = [];
@@ -64,6 +65,16 @@ export function buildInsights({ policies, clients, leads }) {
       add('commission', { key: `c-${p.id}`, policyId: p.id, clientId: p.clientId, value: num(p.commissionAmount), title: `Commission pending from ${p.insurer || 'insurer'}`, detail: `₹${num(p.commissionAmount).toLocaleString('en-IN')} on ${who}'s ${policyTitle(p)}, issued over 45 days ago.` });
   });
 
+  // Family gaps: a member of a household with no health or term cover.
+  clients
+    .filter((c) => !c.householdId && clients.some((m) => m.householdId === c.id))
+    .forEach((head) => {
+      const people = [head, ...clients.filter((m) => m.householdId === head.id)];
+      householdSummary(people, policies).gaps.forEach((g) =>
+        add('family', { key: `fam-${g.personId}-${g.line}`, clientId: g.personId, title: g.text, detail: `Part of ${head.name}'s family. Cover the whole household at once.`, pitch: g.line }),
+      );
+    });
+
   leads.forEach((l) => {
     if (['won', 'lost'].includes(l.stage)) return;
     const d = daysUntil(l.followUp);
@@ -79,6 +90,7 @@ const label = (c) => ({ motor: 'motor', health: 'health', life: 'life', non_moto
 export const INSIGHT_GROUPS = [
   { id: 'renewal', label: 'Renewals slipping', tone: 'red', blurb: 'Expired policies with no decision yet' },
   { id: 'cross', label: 'Cross-sell gaps', tone: 'green', blurb: 'Clients missing a line of cover' },
+  { id: 'family', label: 'Family gaps', tone: 'pink', blurb: 'Household members without cover' },
   { id: 'upsell', label: 'Upsell at renewal', tone: 'violet', blurb: 'Thin cover you can strengthen' },
   { id: 'commission', label: 'Commission to chase', tone: 'amber', blurb: 'Earned but not yet received' },
   { id: 'leads', label: 'Stale leads', tone: 'blue', blurb: 'Follow-ups that are overdue' },

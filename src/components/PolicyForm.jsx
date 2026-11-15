@@ -143,7 +143,7 @@ function PolicyForm({ policy, renewFrom, preset, newClient, lead, onClose }) {
     try {
       let clientId = f.clientId;
       if (clientMode === 'new')
-        clientId = await add('clients', { name: nc.name.trim(), phone: nc.phone.trim(), email: nc.email.trim(), address: (nc.address || '').trim(), dob: nc.dob || '', source: lead?.source || '' });
+        clientId = await add('clients', { name: nc.name.trim(), phone: nc.phone.trim(), email: nc.email.trim(), address: (nc.address || '').trim(), dob: nc.dob || '', source: lead?.source || '', referredBy: lead?.referredBy || '' });
 
       const row = { ...f, clientId };
       FIELDS[f.category].forEach((d) => {
@@ -302,7 +302,7 @@ function PolicyForm({ policy, renewFrom, preset, newClient, lead, onClose }) {
             {!isMotor && <Field label="Product / plan name"><Input value={f.product || ''} onChange={(e) => set('product', e.target.value)} /></Field>}
             <Field label="Business type">
               <Select value={f.businessType} onChange={(e) => set('businessType', e.target.value)}>
-                {['New', 'Renewal', 'Rollover / Port'].map((o) => <option key={o}>{o}</option>)}
+                {['New', 'Renewal', 'Rollover / Port', 'Imported'].map((o) => <option key={o}>{o}</option>)}
               </Select>
             </Field>
             <Field label="Start date" required><Input type="date" value={f.startDate} onChange={(e) => set('startDate', e.target.value)} /></Field>

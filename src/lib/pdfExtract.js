@@ -430,3 +430,33 @@ export async function extractPolicy(file) {
     throw new Error('This PDF has no readable text (it looks like a scanned image). Please enter the details manually.');
   return parsePolicy(lines);
 }
+
+// Reads one insurer's quotation PDF into a column of the quote comparison.
+// Quotes use the same labels as policy schedules (insurer, IDV / sum insured, premium, GST, add-ons).
+export async function extractQuote(file) {
+  const { fields: f, client, text } = await extractPolicy(file);
+  const motor = f.category === 'motor';
+  const features = [
+    motor && f.coverType,
+    ...(f.addons || []),
+    motor && f.ncb ? `NCB ${f.ncb}%` : '',
+    !motor && f.planType,
+  ].filter(Boolean);
+  const option = {
+    insurer: f.insurer || '',
+    plan: f.product || (motor ? [f.coverType, 'Package'].filter(Boolean).join(' ') : f.planType || ''),
+    cover: f.idv || f.sumInsured || '',
+    premium: f.netPremium || '',
+    gstRate: f.gstRate ?? '',
+    features: features.join(', '),
+  };
+  const missing = [!option.insurer && 'insurer', !option.premium && 'premium', !option.cover && (motor ? 'IDV' : 'sum insured')].filter(Boolean);
+  return {
+    option,
+    category: f.category,
+    customer: { name: client.name || '', phone: client.phone || '' },
+    title: motor ? [[f.make, f.model].filter(Boolean).join(' '), f.regNo].filter(Boolean).join(', ') : f.product || '',
+    missing,
+    text,
+  };
+}

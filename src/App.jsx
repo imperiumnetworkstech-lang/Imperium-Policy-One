@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useMatch } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import { Spinner } from './components/ui';
@@ -14,11 +14,18 @@ import Reports from './pages/Reports';
 import CalculatorPage from './pages/Calculator';
 import BusinessCard from './pages/BusinessCard';
 import SettingsPage from './pages/Settings';
+import Quotes from './pages/Quotes';
+import Referrals from './pages/Referrals';
+import Goals from './pages/Goals';
+import CustomerView from './pages/CustomerView';
 
 // Every screen ships in the main bundle (they are small), so moving between
 // screens never waits on the network. Only the PDF reader loads on demand.
 export default function App() {
   const { user, ready } = useAuth();
+  // Customer self-service links are public: no login needed.
+  const share = useMatch('/c/:token');
+  if (share) return <CustomerView token={share.params.token} />;
   if (!ready) return <div className="h-dvh"><Spinner /></div>;
 
   if (!user)
@@ -40,6 +47,9 @@ export default function App() {
         <Route path="claims" element={<Claims />} />
         <Route path="insights" element={<Insights />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="quotes" element={<Quotes />} />
+        <Route path="referrals" element={<Referrals />} />
+        <Route path="goals" element={<Goals />} />
         <Route path="calculator" element={<CalculatorPage />} />
         <Route path="card" element={<BusinessCard />} />
         <Route path="settings" element={<SettingsPage />} />
